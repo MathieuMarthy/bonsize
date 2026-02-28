@@ -19,4 +19,8 @@ pub struct Cli {
     // max depth to display
     #[arg(short = 'd', long = "depth", default_value = None)]
     pub max_depth: Option<u32>,
+
+    // show the output as a sorted list instead of a tree
+    #[arg(short = 's', long = "sorted", default_value_t = false)]
+    pub show_as_sorted_list: bool,
 }

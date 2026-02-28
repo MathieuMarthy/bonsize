@@ -16,4 +16,12 @@ impl FileModel {
             children: Vec::new(),
         }
     }
+
+    pub fn get_flattened_files<'a>(&'a self, files: &mut Vec<&'a FileModel>) {
+        files.push(&self);
+
+        for child in &self.children {
+            child.get_flattened_files(files);
+        }
+    }
 }
