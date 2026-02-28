@@ -8,9 +8,15 @@ pub struct Cli {
     #[arg(default_value = ".")]
     pub path: PathBuf,
 
-    #[arg(short = 'f', long = "file", default_value_t = false)]
+    // show only files
+    #[arg(short = 'F', long = "file", default_value_t = false)]
     pub show_only_files: bool,
 
-    #[arg(short = 'd', long = "directory", default_value_t = false)]
+    // show only directories
+    #[arg(short = 'D', long = "directory", default_value_t = false)]
     pub show_only_dir: bool,
+
+    // max depth to display
+    #[arg(short = 'd', long = "depth", default_value = None)]
+    pub max_depth: Option<u32>,
 }

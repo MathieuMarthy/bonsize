@@ -29,6 +29,10 @@ fn get_file_string(file_model: &FileModel) -> String {
 }
 
 pub fn display(file_model: &FileModel, cli_args: &Cli, current_depth: u32) {
+    if cli_args.max_depth.is_some_and(|max| current_depth >= max) {
+        return;
+    }
+
     if (!file_model.is_directory && !cli_args.show_only_dir)
         || (file_model.is_directory && !cli_args.show_only_files)
     {
