@@ -29,11 +29,15 @@ fn get_file_string(file_model: &FileModel) -> String {
 }
 
 pub fn display(file_model: &FileModel, cli_args: &Cli, current_depth: u32) {
-    println!(
-        "{}{}",
-        " ".repeat((current_depth * 2) as usize),
-        get_file_string(&file_model)
-    );
+    if (!file_model.is_directory && !cli_args.show_only_dir)
+        || (file_model.is_directory && !cli_args.show_only_files)
+    {
+        println!(
+            "{}{}",
+            " ".repeat((current_depth * 2) as usize),
+            get_file_string(&file_model)
+        );
+    }
 
     for child in &file_model.children {
         display(&child, &cli_args, current_depth + 1);
