@@ -3,8 +3,8 @@ use std::fs;
 use std::io::Error;
 use std::path::PathBuf;
 
-pub fn get_directory_size(path: PathBuf) -> Result<FileModel, Error> {
-    let mut root_file = FileModel::new(path, true);
+pub fn get_directory_size(path: &PathBuf) -> Result<FileModel, Error> {
+    let mut root_file = FileModel::new(path.to_path_buf(), true);
     scan_directory(&mut root_file)?;
     Ok(root_file)
 }

@@ -1,2 +1,2 @@
 pub mod file_model;
-mod tree_size;
+pub mod tree_size;
