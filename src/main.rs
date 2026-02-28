@@ -6,8 +6,6 @@ use treesize_cli::scanner::tree_size::get_directory_size;
 fn main() {
     let args = Cli::parse();
 
-    println!("path: {:?}", &args.path);
-
     let dir = get_directory_size(&args.path).unwrap();
 
     if args.show_as_sorted_list {

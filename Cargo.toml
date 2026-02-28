@@ -2,6 +2,19 @@
 name = "treesize-cli"
 version = "0.1.0"
 edition = "2024"
+description = "A CLI tool to display directory tree sizes"
+license = "WTFPL"
+
+[package.metadata.deb]
+name = "treesize-cli"
+maintainer = "Mathieu Marthy <mathieu.marthy@gmail.com>"
+copyright = "2026, Mathieu Marthy"
+section = "utils"
+priority = "optional"
+assets = [
+    ["target/release/treesize-cli", "usr/bin/", "755"],
+    ["assets/icon.png", "usr/share/icons/hicolor/256x256/apps/treesize-cli.png", "644"],
+]
 
 [dependencies]
 clap = { version = "4.5.60", features = ["derive"] }
