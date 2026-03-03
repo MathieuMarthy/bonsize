@@ -1,5 +1,11 @@
-use clap::Parser;
+use clap::{Parser, ValueEnum};
 use std::path::PathBuf;
+
+#[derive(ValueEnum, Debug, Clone)]
+pub enum Sort {
+    Asc,
+    Desc,
+}
 
 // show the size of your directories and files
 #[derive(Parser, Debug)]
@@ -20,7 +26,7 @@ pub struct Cli {
     #[arg(short = 'd', long = "depth", default_value = None)]
     pub max_depth: Option<u32>,
 
-    // show the output as a sorted list instead of a tree
-    #[arg(short = 's', long = "sorted", default_value_t = false)]
-    pub show_as_sorted_list: bool,
+    // show the output as a sorted list (asc or desc)
+    #[arg(short = 's', long = "sorted", default_missing_value = "desc", num_args = 0..=1)]
+    pub sort: Option<Sort>,
 }

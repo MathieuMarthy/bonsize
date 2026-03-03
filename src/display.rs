@@ -1,5 +1,6 @@
-use crate::cli::Cli;
+use crate::cli::{Cli, Sort};
 use crate::scanner::file_model::FileModel;
+use std::cmp::Reverse;
 
 const BYTES_PER_UNIT: u64 = 1024;
 const SUFFIXES: [&str; 5] = ["B", "KB", "MB", "GB", "TB"];
@@ -54,7 +55,10 @@ pub fn display_as_sorted_list(file_model: &FileModel, cli_args: &Cli) {
     let mut all_files: Vec<&FileModel> = Vec::new();
     file_model.get_flattened_files(&mut all_files);
 
-    all_files.sort_by_key(|file| std::cmp::Reverse(file.size));
+    match cli_args.sort {
+        Some(Sort::Asc) => all_files.sort_by_key(|file| file.size),
+        _ => all_files.sort_by_key(|file| Reverse(file.size)),
+    }
 
     for file in all_files {
         if (!file.is_directory && !cli_args.show_only_dir)
