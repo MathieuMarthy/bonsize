@@ -1,4 +1,5 @@
 use crate::cli::{Cli, Sort};
+use crate::formatter::Formatter;
 use crate::scanner::file_model::FileModel;
 use std::cmp::Reverse;
 
@@ -17,7 +18,7 @@ fn get_file_string_size(file_size: &u64) -> String {
     format!("{:.2} {}", size_to_display, SUFFIXES[suffix_index])
 }
 
-fn get_file_string(file_model: &FileModel) -> String {
+pub(crate) fn get_file_string(file_model: &FileModel) -> String {
     let file_icon = match file_model.is_directory {
         true => "📂",
         false => "📄",
@@ -31,7 +32,26 @@ fn get_file_string(file_model: &FileModel) -> String {
     )
 }
 
-pub fn display(file_model: &FileModel, cli_args: &Cli, current_depth: u32) {
+pub(crate) fn get_file_csv_string(file_model: &FileModel) -> String {
+    let file_type = match file_model.is_directory {
+        true => "directory",
+        false => "file",
+    };
+
+    format!(
+        "{};{};{}",
+        file_type,
+        file_model.path.to_string_lossy().replace('\\', "/"),
+        file_model.size
+    )
+}
+
+pub fn display_as_tree<F: Formatter>(
+    file_model: &FileModel,
+    cli_args: &Cli,
+    current_depth: u32,
+    formatter: &F,
+) {
     if cli_args.max_depth.is_some_and(|max| current_depth >= max) {
         return;
     }
@@ -39,19 +59,15 @@ pub fn display(file_model: &FileModel, cli_args: &Cli, current_depth: u32) {
     if (!file_model.is_directory && !cli_args.show_only_dir)
         || (file_model.is_directory && !cli_args.show_only_files)
     {
-        println!(
-            "{}{}",
-            " ".repeat((current_depth * 2) as usize),
-            get_file_string(&file_model)
-        );
+        formatter.format(&file_model, Some(current_depth))
     }
 
     for child in &file_model.children {
-        display(&child, &cli_args, current_depth + 1);
+        display_as_tree(&child, &cli_args, current_depth + 1, formatter);
     }
 }
 
-pub fn display_as_sorted_list(file_model: &FileModel, cli_args: &Cli) {
+pub fn display_as_sorted_list<F: Formatter>(file_model: &FileModel, cli_args: &Cli, formatter: &F) {
     let mut all_files: Vec<&FileModel> = Vec::new();
     file_model.get_flattened_files(&mut all_files);
 
@@ -64,7 +80,7 @@ pub fn display_as_sorted_list(file_model: &FileModel, cli_args: &Cli) {
         if (!file.is_directory && !cli_args.show_only_dir)
             || (file.is_directory && !cli_args.show_only_files)
         {
-            println!("{}", get_file_string(&file))
+            formatter.format(&file, None);
         }
     }
 }

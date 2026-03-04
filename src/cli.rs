@@ -29,4 +29,8 @@ pub struct Cli {
     // show the output as a sorted list (asc or desc)
     #[arg(short = 's', long = "sorted", default_missing_value = "desc", num_args = 0..=1)]
     pub sort: Option<Sort>,
+
+    // show the output in csv format
+    #[arg(long = "csv", default_value_t = false)]
+    pub csv: bool,
 }
