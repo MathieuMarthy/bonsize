@@ -1,6 +1,9 @@
+pub mod formatter;
+pub mod output_format;
+
+use super::scanner::file_model::FileModel;
 use crate::cli::{Cli, Sort};
-use crate::formatter::Formatter;
-use crate::scanner::file_model::FileModel;
+use crate::display::formatter::Formatter;
 use std::cmp::Reverse;
 
 const BYTES_PER_UNIT: u64 = 1024;

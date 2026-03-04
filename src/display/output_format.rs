@@ -1,6 +1,6 @@
 use crate::cli::{Cli, Sort};
+use crate::display::formatter::{CsvFormatter, TreeFormatter};
 use crate::display::{display_as_sorted_list, display_as_tree};
-use crate::formatter::{CsvFormatter, TreeFormatter};
 use crate::scanner::file_model::FileModel;
 
 pub enum OutputFormat {

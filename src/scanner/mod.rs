@@ -1,4 +1,6 @@
-use super::file_model::FileModel;
+pub mod file_model;
+
+use crate::scanner::file_model::FileModel;
 use std::fs;
 use std::io::Error;
 use std::path::PathBuf;
