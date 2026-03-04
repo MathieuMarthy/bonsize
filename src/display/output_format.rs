@@ -11,10 +11,10 @@ pub enum OutputFormat {
 }
 
 impl OutputFormat {
-    pub fn from_args(sort: &Option<Sort>, display_as_csv: bool) -> Self {
+    pub fn from_args(sort: &Option<Sort>, display_as_csv: Option<char>) -> Self {
         match (sort, display_as_csv) {
-            (Some(_), true) => OutputFormat::CsvList,
-            (None, true) => OutputFormat::CsvTree,
+            (Some(_), Some(_)) => OutputFormat::CsvList,
+            (None, Some(_)) => OutputFormat::CsvTree,
             (Some(_), _) => OutputFormat::SortedList,
             (None, _) => OutputFormat::Tree,
         }
@@ -23,12 +23,16 @@ impl OutputFormat {
     pub fn display(&self, file: &FileModel, args: &Cli) {
         match self {
             OutputFormat::CsvList => {
-                let formatter = CsvFormatter;
+                let formatter = CsvFormatter {
+                    separator: args.csv.unwrap_or(CsvFormatter::DEFAULT_SEPARATOR),
+                };
                 formatter.print_header();
                 display_as_sorted_list(file, args, &formatter);
             }
             OutputFormat::CsvTree => {
-                let formatter = CsvFormatter;
+                let formatter = CsvFormatter {
+                    separator: args.csv.unwrap_or(CsvFormatter::DEFAULT_SEPARATOR),
+                };
                 formatter.print_header();
                 display_as_tree(file, args, 0, &formatter);
             }
