@@ -5,7 +5,7 @@ use treesize_cli::scanner::get_directory_size;
 
 fn main() {
     let args = Cli::parse();
-    let dir = get_directory_size(&args.path).unwrap();
+    let dir = get_directory_size(&args.path);
 
     OutputFormat::from_args(&args.sort, args.csv).display(&dir, &args);
 }
