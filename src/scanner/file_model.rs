@@ -5,15 +5,17 @@ pub struct FileModel {
     pub is_directory: bool,
     pub size: u64,
     pub children: Vec<FileModel>,
+    pub depth: usize,
 }
 
 impl FileModel {
-    pub fn new(path: PathBuf, is_directory: bool) -> FileModel {
+    pub fn new(path: PathBuf, is_directory: bool, depth: usize) -> FileModel {
         FileModel {
             path,
             is_directory,
             size: 0,
             children: Vec::new(),
+            depth
         }
     }
 

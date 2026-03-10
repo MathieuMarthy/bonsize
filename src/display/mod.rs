@@ -7,23 +7,22 @@ use crate::display::formatter::Formatter;
 use std::cmp::Reverse;
 
 pub fn display_as_tree<F: Formatter>(
-    file_model: &FileModel,
+    file: &FileModel,
     cli_args: &Cli,
-    current_depth: u32,
     formatter: &F,
 ) {
-    if cli_args.max_depth.is_some_and(|max| current_depth >= max) {
+    if cli_args.max_depth.is_some_and(|max| file.depth >= max) {
         return;
     }
 
-    if (!file_model.is_directory && !cli_args.show_only_dir)
-        || (file_model.is_directory && !cli_args.show_only_files)
+    if (!file.is_directory && !cli_args.show_only_dir)
+        || (file.is_directory && !cli_args.show_only_files)
     {
-        formatter.format(&file_model, Some(current_depth))
+        formatter.format(&file)
     }
 
-    for child in &file_model.children {
-        display_as_tree(&child, &cli_args, current_depth + 1, formatter);
+    for child in &file.children {
+        display_as_tree(&child, &cli_args, formatter);
     }
 }
 
@@ -36,11 +35,15 @@ pub fn display_as_sorted_list<F: Formatter>(file_model: &FileModel, cli_args: &C
         _ => all_files.sort_by_key(|file| Reverse(file.size)),
     }
 
+    if let Some(max_depth) = cli_args.max_depth {
+        all_files.retain(|&file| &file.depth <= &max_depth)
+    }
+
     for file in all_files {
         if (!file.is_directory && !cli_args.show_only_dir)
             || (file.is_directory && !cli_args.show_only_files)
         {
-            formatter.format(&file, None);
+            formatter.format(&file);
         }
     }
 }

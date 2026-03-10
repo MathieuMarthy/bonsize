@@ -24,7 +24,7 @@ pub struct Cli {
 
     // max depth to display
     #[arg(short = 'd', long = "depth", default_value = None)]
-    pub max_depth: Option<u32>,
+    pub max_depth: Option<usize>,
 
     // show the output as a sorted list (asc or desc)
     #[arg(short = 's', long = "sorted", default_missing_value = "desc", num_args = 0..=1)]

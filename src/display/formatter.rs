@@ -19,21 +19,14 @@ fn get_file_string_size(size: &u64) -> String {
 }
 
 pub trait Formatter {
-    /// Formats and outputs information about a single file.
-    ///
-    /// * `file` is the file entry to be formatted.
-    /// * `depth` is the logical depth of `file` in a tree structure:
-    ///   when rendering a hierarchical tree, pass `Some(level)` to
-    ///   control indentation (e.g. the root at depth 0, its children
-    ///   at depth 1, and so on). For flat, non-hierarchical output
-    ///   (such as CSV lists), pass `None` and implementations are
-    ///   expected to ignore the depth.
-    fn format(&self, file: &FileModel, depth: Option<u32>);
+    fn format(&self, file: &FileModel);
 }
 
-pub struct TreeFormatter;
+pub struct TreeFormatter {
+    pub use_indentation: bool
+}
 impl Formatter for TreeFormatter {
-    fn format(&self, file: &FileModel, depth: Option<u32>) {
+    fn format(&self, file: &FileModel) {
         let file_icon = match file.is_directory {
             true => "📂",
             false => "📄",
@@ -41,7 +34,7 @@ impl Formatter for TreeFormatter {
 
         println!(
             "{}{} - {} {}",
-            " ".repeat((depth.unwrap_or(0) * 2) as usize),
+            if self.use_indentation {" ".repeat(file.depth * 2)} else { String::from("") },
             file_icon,
             file.path.to_string_lossy().replace('\\', "/"),
             get_file_string_size(&file.size)
@@ -53,7 +46,7 @@ pub struct CsvFormatter {
     pub(crate) separator: char,
 }
 impl Formatter for CsvFormatter {
-    fn format(&self, file: &FileModel, _: Option<u32>) {
+    fn format(&self, file: &FileModel) {
         let file_type = match file.is_directory {
             true => "directory",
             false => "file",

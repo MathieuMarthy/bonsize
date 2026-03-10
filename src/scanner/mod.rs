@@ -5,7 +5,7 @@ use std::fs;
 use std::path::PathBuf;
 
 pub fn get_directory_size(path: &PathBuf) -> FileModel {
-    let mut root_file = FileModel::new(path.to_path_buf(), true);
+    let mut root_file = FileModel::new(path.to_path_buf(), true, 0);
     scan_directory(&mut root_file);
     root_file
 }
@@ -45,7 +45,7 @@ fn scan_directory(parent_dir: &mut FileModel) {
             continue;
         }
 
-        let mut file_model = FileModel::new(file.path(), file_type.is_dir());
+        let mut file_model = FileModel::new(file.path(), file_type.is_dir(), parent_dir.depth + 1);
 
         if file_type.is_file() {
             file_model.size = file

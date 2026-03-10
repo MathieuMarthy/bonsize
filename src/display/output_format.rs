@@ -34,15 +34,15 @@ impl OutputFormat {
                     separator: args.csv.unwrap_or(CsvFormatter::DEFAULT_SEPARATOR),
                 };
                 formatter.print_header();
-                display_as_tree(file, args, 0, &formatter);
+                display_as_tree(file, args, &formatter);
             }
             OutputFormat::SortedList => {
-                let formatter = TreeFormatter;
+                let formatter = TreeFormatter { use_indentation: false };
                 display_as_sorted_list(file, args, &formatter)
             }
             OutputFormat::Tree => {
-                let formatter = TreeFormatter;
-                display_as_tree(file, args, 0, &formatter)
+                let formatter = TreeFormatter { use_indentation: true };
+                display_as_tree(file, args, &formatter)
             }
         };
     }
