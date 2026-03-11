@@ -1,4 +1,5 @@
 pub mod file_model;
+pub mod cache;
 
 use crate::scanner::file_model::FileModel;
 use std::fs;

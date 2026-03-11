@@ -33,4 +33,8 @@ pub struct Cli {
     // show the output in csv format
     #[arg(long = "csv", default_missing_value = ";", num_args = 0..=1)]
     pub csv: Option<char>,
+    
+    // use cache to speed up the scanning process (cache will be used if the same path is scanned again within a certain time frame)
+    #[arg(short = 'c', long = "cache", default_value_t = false)]
+    pub cache: bool,
 }

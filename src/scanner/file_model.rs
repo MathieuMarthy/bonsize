@@ -1,5 +1,7 @@
 use std::path::PathBuf;
+use serde::{Deserialize, Serialize};
 
+#[derive(Serialize, Deserialize)]
 pub struct FileModel {
     pub path: PathBuf,
     pub is_directory: bool,
