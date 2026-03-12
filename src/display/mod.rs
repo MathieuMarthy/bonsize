@@ -5,6 +5,7 @@ use super::scanner::file_model::FileModel;
 use crate::cli::{Cli, Sort};
 use crate::display::formatter::Formatter;
 use std::cmp::Reverse;
+use rayon::prelude::ParallelSliceMut;
 
 pub fn display_as_tree<F: Formatter>(
     file: &FileModel,
@@ -22,7 +23,7 @@ pub fn display_as_tree<F: Formatter>(
     }
 
     for child in &file.children {
-        display_as_tree(&child, &cli_args, formatter);
+        display_as_tree(child, cli_args, formatter);
     }
 }
 
@@ -31,12 +32,12 @@ pub fn display_as_sorted_list<F: Formatter>(file_model: &FileModel, cli_args: &C
     file_model.get_flattened_files(&mut all_files);
 
     match cli_args.sort {
-        Some(Sort::Asc) => all_files.sort_by_key(|file| file.size),
-        _ => all_files.sort_by_key(|file| Reverse(file.size)),
+        Some(Sort::Asc) => all_files.par_sort_by_key(|file| file.size),
+        _ => all_files.par_sort_by_key(|file| Reverse(file.size)),
     }
 
     if let Some(max_depth) = cli_args.max_depth {
-        all_files.retain(|&file| &file.depth <= &max_depth)
+        all_files.retain(|&file| &file.depth <= &max_depth);
     }
 
     for file in all_files {
