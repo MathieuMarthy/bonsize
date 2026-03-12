@@ -3,9 +3,22 @@ pub mod cache;
 
 use crate::scanner::file_model::FileModel;
 use std::fs;
+use std::fs::Metadata;
 use std::path::PathBuf;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use rayon::slice::ParallelSliceMut;
+use crate::config::BLOCK_SIZE;
+
+#[cfg(unix)]
+fn get_file_size(metadata: &Metadata) -> u64 {
+    use std::os::unix::fs::MetadataExt;
+    metadata.blocks() * BLOCK_SIZE
+}
+
+#[cfg(not(unix))]
+fn get_file_size(metadata: &Metadata) -> u64 {
+    metadata.len()
+}
 
 pub struct ScanOptions {
     pub quiet: bool, // suppress error messages (e.g., permission denied)
@@ -75,7 +88,7 @@ fn scan_directory(parent_dir: &mut FileModel, options: &ScanOptions) {
                             );
                         }
                     })
-                    .map(|m| m.len())
+                    .map(|m| get_file_size(&m))
                     .unwrap_or(0);
             } else {
                 scan_directory(&mut file_model, options);
