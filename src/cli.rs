@@ -37,4 +37,8 @@ pub struct Cli {
     // use cache to speed up the scanning process (cache will be used if the same path is scanned again within a certain time frame)
     #[arg(short = 'c', long = "cache", default_value_t = false)]
     pub cache: bool,
+
+    // hide error messages (e.g., permission denied)
+    #[arg(short = 'q', long = "quiet", default_value_t = false)]
+    pub quiet: bool,
 }

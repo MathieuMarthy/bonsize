@@ -7,28 +7,36 @@ use std::path::PathBuf;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use rayon::slice::ParallelSliceMut;
 
-pub fn get_directory_size(path: &PathBuf) -> FileModel {
+pub struct ScanOptions {
+    pub quiet: bool, // suppress error messages (e.g., permission denied)
+}
+
+pub fn get_directory_size(path: &PathBuf, options: &ScanOptions) -> FileModel {
     let mut root_file = FileModel::new(path.to_path_buf(), true, 0);
-    scan_directory(&mut root_file);
+    scan_directory(&mut root_file, options);
     root_file
 }
 
-fn scan_directory(parent_dir: &mut FileModel) {
+fn scan_directory(parent_dir: &mut FileModel, options: &ScanOptions) {
     let entries: Vec<_> = match fs::read_dir(&parent_dir.path) {
         Ok(paths) => paths
             .filter_map(|entry| match entry {
                 Ok(e) => Some(e),
                 Err(_) => {
-                    eprintln!(
-                        "Error: Unable to read a file in directory '{:?}'",
-                        parent_dir.path
-                    );
+                    if !options.quiet {
+                        eprintln!(
+                            "Error: Unable to read a file in directory '{:?}'",
+                            parent_dir.path
+                        );
+                    }
                     None
                 }
             })
             .collect(),
         Err(_) => {
-            eprintln!("Error: Unable to read directory '{:?}'", parent_dir.path);
+            if !options.quiet {
+                eprintln!("Error: Unable to read directory '{:?}'", parent_dir.path);
+            }
             return;
         }
     };
@@ -39,10 +47,12 @@ fn scan_directory(parent_dir: &mut FileModel) {
             let file_type = match file.file_type() {
                 Ok(ft) => ft,
                 Err(_) => {
-                    eprintln!(
-                        "Error: Unable to determine the type of a file in directory '{:?}'",
-                        file.path()
-                    );
+                    if !options.quiet {
+                        eprintln!(
+                            "Error: Unable to determine the type of a file in directory '{:?}'",
+                            file.path()
+                        );
+                    }
                     return None;
                 }
             };
@@ -58,15 +68,17 @@ fn scan_directory(parent_dir: &mut FileModel) {
                 file_model.size = file
                     .metadata()
                     .inspect_err(|_| {
-                        eprintln!(
-                            "Error: Unable to determine the size of file '{:?}'",
-                            file_model.path
-                        )
+                        if !options.quiet {
+                            eprintln!(
+                                "Error: Unable to determine the size of file '{:?}'",
+                                file_model.path
+                            );
+                        }
                     })
                     .map(|m| m.len())
                     .unwrap_or(0);
             } else {
-                scan_directory(&mut file_model);
+                scan_directory(&mut file_model, options);
             }
 
             Some(file_model)
