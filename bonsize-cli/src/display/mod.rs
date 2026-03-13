@@ -1,7 +1,7 @@
 pub mod formatter;
 pub mod output_format;
 
-use super::scanner::file_model::FileModel;
+use bonsize_core::scanner::file_model::FileModel;
 use crate::cli::{Cli, Sort};
 use crate::display::formatter::Formatter;
 use std::cmp::Reverse;

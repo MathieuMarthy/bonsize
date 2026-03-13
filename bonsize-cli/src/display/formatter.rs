@@ -1,4 +1,4 @@
-use crate::scanner::file_model::FileModel;
+use bonsize_core::scanner::file_model::FileModel;
 
 fn get_file_string_size(size: &u64) -> String {
     const UNITS: [&str; 5] = ["B", "KB", "MB", "GB", "TB"];

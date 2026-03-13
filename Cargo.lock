@@ -62,11 +62,19 @@ dependencies = [
 ]
 
 [[package]]
-name = "bonsize"
+name = "bonsize-cli"
+version = "1.2.0"
+dependencies = [
+ "bonsize-core",
+ "clap",
+ "rayon",
+]
+
+[[package]]
+name = "bonsize-core"
 version = "1.2.0"
 dependencies = [
  "bincode",
- "clap",
  "dirs",
  "rayon",
  "serde",
