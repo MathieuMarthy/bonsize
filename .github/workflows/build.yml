@@ -45,21 +45,21 @@ jobs:
           if (-not $version) { $version = "0.0.0" }
           $version = $version.TrimStart("v")
           @"
-          !define APP_NAME "treesize-cli"
+          !define APP_NAME "bonsize"
           !define APP_VERSION "$version"
-          !define INSTALL_DIR "`$PROGRAMFILES64\treesize-cli"
+          !define INSTALL_DIR "`$PROGRAMFILES64\bonsize"
 
           Name "`${APP_NAME} `${APP_VERSION}"
-          OutFile "treesize-cli-installer.exe"
+          OutFile "bonsize-installer.exe"
           InstallDir "`${INSTALL_DIR}"
-          InstallDirRegKey HKLM "Software\treesize-cli" "Install_Dir"
+          InstallDirRegKey HKLM "Software\bonsize" "Install_Dir"
           RequestExecutionLevel admin
           Icon "assets\icon.ico"
           UninstallIcon "assets\icon.ico"
 
           Section "Install"
             SetOutPath "`$INSTDIR"
-            File "target\x86_64-pc-windows-msvc\release\treesize-cli.exe"
+            File "target\x86_64-pc-windows-msvc\release\bonsize.exe"
             File "assets\icon.ico"
 
             ; Add to PATH
@@ -69,20 +69,20 @@ jobs:
             WriteUninstaller "`$INSTDIR\uninstall.exe"
 
             ; Registry for Add/Remove Programs
-            WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\treesize-cli" "DisplayName" "`${APP_NAME}"
-            WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\treesize-cli" "DisplayVersion" "`${APP_VERSION}"
-            WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\treesize-cli" "UninstallString" "`$INSTDIR\uninstall.exe"
-            WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\treesize-cli" "DisplayIcon" "`$INSTDIR\icon.ico"
+            WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\bonsize" "DisplayName" "`${APP_NAME}"
+            WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\bonsize" "DisplayVersion" "`${APP_VERSION}"
+            WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\bonsize" "UninstallString" "`$INSTDIR\uninstall.exe"
+            WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\bonsize" "DisplayIcon" "`$INSTDIR\icon.ico"
           SectionEnd
 
           Section "Uninstall"
-            Delete "`$INSTDIR\treesize-cli.exe"
+            Delete "`$INSTDIR\bonsize.exe"
             Delete "`$INSTDIR\icon.ico"
             Delete "`$INSTDIR\uninstall.exe"
             RMDir "`$INSTDIR"
             EnVar::DeleteValue "PATH" "`$INSTDIR"
-            DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\treesize-cli"
-            DeleteRegKey HKLM "Software\treesize-cli"
+            DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\bonsize"
+            DeleteRegKey HKLM "Software\bonsize"
           SectionEnd
           "@ | Out-File -Encoding UTF8 installer.nsi
 
@@ -100,7 +100,7 @@ jobs:
       - name: Upload installer to release
         uses: softprops/action-gh-release@v2
         with:
-          files: treesize-cli-installer.exe
+          files: bonsize-installer.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

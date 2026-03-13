@@ -1,9 +1,9 @@
 use clap::Parser;
-use treesize_cli::cli::Cli;
-use treesize_cli::display::output_format::OutputFormat;
-use treesize_cli::scanner::cache::{load_cache, save_cache};
-use treesize_cli::scanner::file_model::FileModel;
-use treesize_cli::scanner::{get_directory_size, ScanOptions};
+use bonsize::cli::Cli;
+use bonsize::display::output_format::OutputFormat;
+use bonsize::scanner::cache::{load_cache, save_cache};
+use bonsize::scanner::file_model::FileModel;
+use bonsize::scanner::{get_directory_size, ScanOptions};
 
 fn main() {
     let args = Cli::parse();

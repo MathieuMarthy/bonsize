@@ -1,16 +1,16 @@
-# treesize-cli 🐢
+# bonsize 🐢
 
 A CLI tool to display directory tree sizes.
 
 ## Description
 
-`treesize-cli` allows you to quickly analyze and display the size of directories and files in a tree structure, making it easy to identify which files and folders are taking up the most disk space.
+`bonsize` allows you to quickly analyze and display the size of directories and files in a tree structure, making it easy to identify which files and folders are taking up the most disk space.
 
 
 ## Usage
 
 ```bash
-treesize-cli [OPTIONS] [PATH]
+bonsize [OPTIONS] [PATH]
 ```
 
 ### Arguments
@@ -32,7 +32,7 @@ treesize-cli [OPTIONS] [PATH]
 ### Examples
 
 ```bash
-$ treesize-cli /folder
+$ bonsize /folder
 📂 - folder 109.15MB
   📂 - folder/videos 104.79MB
     📂 - folder/videos/2026 87.19MB
@@ -47,10 +47,10 @@ $ treesize-cli /folder
 
 ```bash
 # Show only directories, sorted by size
-$ treesize-cli -D -s desc
+$ bonsize -D -s desc
 
 # Limit depth and use cache
-$ treesize-cli -d 3 -c
+$ bonsize -d 3 -c
 ```
 
 
@@ -58,14 +58,14 @@ $ treesize-cli -d 3 -c
 
 ### Windows
 
-Download the Windows installer (`.exe`) from the [GitHub releases](https://github.com/MathieuMarthy/treesize-cli/releases).
+Download the Windows installer (`.exe`) from the [GitHub releases](https://github.com/MathieuMarthy/bonsize/releases).
 
 ### Debian/Ubuntu
 
-Download the `.deb` package from the [GitHub releases](https://github.com/MathieuMarthy/treesize-cli/releases) and install it:
+Download the `.deb` package from the [GitHub releases](https://github.com/MathieuMarthy/bonsize/releases) and install it:
 
 ```bash
-sudo dpkg -i treesize-cli_*.deb
+sudo dpkg -i bonsize_*.deb
 ```
 
 ### From source
