@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "bonsize-core",
-    "bonsize-cli"
+    "bonsize-cli",
+    "bonsize-tauri/src-tauri",
 ]
 resolver = "2"
