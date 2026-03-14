@@ -16,3 +16,9 @@
     --color-background: #141414;
     --color-text: #FFF;
 }
+
+@layer base {
+    body {
+        @apply bg-black;
+    }
+}

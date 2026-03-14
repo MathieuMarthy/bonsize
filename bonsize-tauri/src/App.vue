@@ -1,18 +1,26 @@
 <script setup lang="ts">
-import MultiButton from "./components/atoms/multi-button.vue";
+import { computed, ref, type Component } from "vue";
+import FolderDetails from "./components/pages/folder-details.vue";
+import HomePage from "./components/pages/home-page.vue";
 
+const routes: { [id: string]: Component } = {
+    "/": HomePage,
+    "/folder-details": FolderDetails,
+};
+
+const currentPath = ref(window.location.hash);
+
+window.addEventListener("hashchange", () => {
+    currentPath.value = window.location.hash;
+});
+
+const currentView = computed(() => {
+    const rawPath = currentPath.value.split("?")[0] || "#/";
+    const currentPathSliced: string = rawPath.slice(1);
+    return routes[currentPathSliced] || HomePage;
+});
 </script>
 
 <template>
-    <main class="w-full h-screen flex flex-col justify-around bg-background">
-        <div class="flex flex-col items-center">
-            <img class="w-46 h-auto" src="./assets/icon.png" alt="bonsize's logo" />
-            <p class="text-text text-center text-6xl font-bold">Bonsize</p>
-        </div>
-
-        <div class="flex flex-col items-center gap-4">
-            <MultiButton class="w-64" text="Pick folder"/>
-            <MultiButton class="w-64" text="Scan all my files" :full="false"/>
-        </div>
-    </main>
+    <component :is="currentView" />
 </template>
