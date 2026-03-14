@@ -2,9 +2,12 @@
 import { ref, onMounted, Ref } from "vue";
 import { FileModel } from "../../models/FileModel";
 import { invoke } from "@tauri-apps/api/core";
+import HeaderWithPickFolders from "../molecules/header-with-pick-folders.vue";
+import LoaderFilesList from "../molecules/files-list/loader-files-list.vue";
+import FilesList from "../molecules/files-list/files-list.vue";
 
 const isLoading = ref(true);
-const directoryInformations: Ref<FileModel | undefined> = ref(undefined)
+const directoryInformations: Ref<FileModel | undefined> = ref(undefined);
 
 onMounted(() => {
     const hash = window.location.hash;
@@ -16,13 +19,32 @@ onMounted(() => {
 
 async function get_directory_informations(path: string) {
     directoryInformations.value = await invoke("scan_directory", { path: path });
+
+    if (directoryInformations.value === undefined) {
+        return;
+    }
+
+    directoryInformations.value.folder_open = true;
+    directoryInformations.value.children.forEach((file) => {
+        file.folder_open = true;
+    });
+
     isLoading.value = false;
 }
 </script>
 
 <template>
     <div>
-        <p v-if="isLoading" class="text-text">is loading...</p>
-        <p v-else class="text-text">loaded !</p>
+        <HeaderWithPickFolders />
+
+        <div class="flex pt-12">
+            <div class="w-1/2 pl-16 pt-12">
+                <LoaderFilesList v-if="isLoading" />
+                <FilesList :file="directoryInformations!" v-else />
+            </div>
+
+            <div class="w-1/2">
+            </div>
+        </div>
     </div>
 </template>

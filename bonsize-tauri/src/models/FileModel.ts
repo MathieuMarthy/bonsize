@@ -5,4 +5,6 @@ export interface FileModel {
     size: number,
     children: FileModel[],
     depth: number,
+
+    folder_open: boolean | undefined,
 }
