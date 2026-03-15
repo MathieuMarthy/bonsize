@@ -37,7 +37,7 @@ async function get_directory_informations(path: string) {
     <div>
         <HeaderWithPickFolders />
 
-        <div class="flex pt-12">
+        <div class="flex pt-32">
             <div class="w-1/2 pl-16 pt-12">
                 <LoaderFilesList v-if="isLoading" />
                 <FilesList :file="directoryInformations!" v-else />

@@ -19,6 +19,6 @@
 
 @layer base {
     body {
-        @apply bg-black;
+        @apply bg-background;
     }
 }
