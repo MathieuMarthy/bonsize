@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { openPath } from "@tauri-apps/plugin-opener";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
-import { computed, onMounted, onUnmounted } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useContextMenu } from "./useContextMenu";
 import { invoke } from "@tauri-apps/api/core";
 import { useNotification } from "../../../utils/useNotification";
+import ConfirmModal from "../../atoms/confirm-modal.vue";
 
 const { showContextMenu, menuX, menuY, currentFile, parentFile, closeContextMenu } = useContextMenu();
 const { notify } = useNotification();
+const confirmModalRef = ref<InstanceType<typeof ConfirmModal> | null>(null);
+
 const actions = computed(() => [
     ["Open in file explorer", "open-folder"],
     ["Copy Path", "copy-path"],
@@ -42,6 +45,12 @@ async function deleteFile() {
         return;
     }
 
+    const type = currentFile.value.is_directory ? "folder" : "file";
+    const confirmed = await confirmModalRef.value?.show(`Are you sure you want to delete this ${type}?`);
+    if (!confirmed) {
+        return;
+    }
+
     try {
         const fileIsDeleted = await invoke("delete_file", { path: currentFile.value.path });
         if (fileIsDeleted) {
@@ -49,12 +58,12 @@ async function deleteFile() {
                 parentFile.value.children = parentFile.value.children
                     .filter((child) => child.path !== currentFile.value!.path);
             }
-            notify(`${currentFile.value.is_directory ? "Folder" : "File"} deleted successfully`, "success");
+            notify(`${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully`, "success");
         } else {
-            notify(`Failed to delete ${currentFile.value.is_directory ? "folder" : "file"}`, "error");
+            notify(`Failed to delete ${type}`, "error");
         }
     } catch {
-        notify(`Error deleting ${currentFile.value.is_directory ? "folder" : "file"}`, "error");
+        notify(`Error deleting ${type}`, "error");
     }
 }
 
@@ -77,4 +86,5 @@ onUnmounted(() => {
             <p>{{ action[0] }}</p>
         </div>
     </div>
+    <ConfirmModal ref="confirmModalRef" />
 </template>
