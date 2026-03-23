@@ -7,6 +7,7 @@ import { useContextMenu } from "../context-menu/useContextMenu";
 const props = defineProps({
     file: { type: Object as PropType<FileModel>, required: true },
     parentPath: { type: String, default: "" },
+    parentFile: { type: Object as PropType<FileModel | null>, default: null },
 });
 
 const { openContextMenu } = useContextMenu();
@@ -17,7 +18,7 @@ function toggleFileOpen() {
 }
 
 function onContextMenu(event: MouseEvent) {
-    openContextMenu(event, props.file);
+    openContextMenu(event, props.file, props.parentFile);
 }
 </script>
 
@@ -30,6 +31,7 @@ function onContextMenu(event: MouseEvent) {
     </p>
 
     <template v-if="file.folder_open">
-        <FilesList v-for="child in file.children" :key="child.path" :file="child" :parent-path="file.path + '/'" />
+        <FilesList v-for="child in file.children" :key="child.path" :file="child" :parent-path="file.path + '/'"
+            :parent-file="file" />
     </template>
 </template>

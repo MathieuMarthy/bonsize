@@ -25,10 +25,6 @@ async function get_directory_informations(path: string) {
     }
 
     directoryInformations.value.folder_open = true;
-    directoryInformations.value.children.forEach((file) => {
-        file.folder_open = true;
-    });
-
     isLoading.value = false;
 }
 </script>

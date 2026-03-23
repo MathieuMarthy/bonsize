@@ -3,6 +3,7 @@ import { computed, ref, type Component } from "vue";
 import FolderDetails from "./components/pages/folder-details.vue";
 import HomePage from "./components/pages/home-page.vue";
 import ContextMenu from "./components/molecules/context-menu/context-menu.vue";
+import ToastNotification from "./components/atoms/toast-notification.vue";
 
 const routes: { [id: string]: Component } = {
     "/": HomePage,
@@ -25,4 +26,5 @@ const currentView = computed(() => {
 <template>
     <component :is="currentView" />
     <ContextMenu />
+    <ToastNotification />
 </template>

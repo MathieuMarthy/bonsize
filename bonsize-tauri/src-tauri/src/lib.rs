@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{fs::{remove_dir_all, remove_file}, path::PathBuf};
 
 use bonsize_core::scanner::{file_model::FileModel, get_directory_size, ScanOptions};
 
@@ -10,13 +10,25 @@ async fn scan_directory(path: String) -> FileModel {
     get_directory_size(&path_buf, &options)
 }
 
+#[tauri::command]
+async fn delete_file(path: String) -> bool {
+    let path_buf = PathBuf::from(path);
+
+    if path_buf.is_file() {
+        remove_file(path_buf).is_ok()
+    } else {
+        remove_dir_all(path_buf).is_ok()
+    }
+}
+
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![scan_directory])
+        .invoke_handler(tauri::generate_handler![scan_directory, delete_file])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
