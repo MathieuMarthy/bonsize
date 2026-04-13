@@ -18,12 +18,20 @@ onMounted(() => {
 });
 
 async function get_directory_informations(path: string) {
-    directoryInformations.value = await invoke("scan_directory", { path: path });
+    const data: FileModel | undefined = await invoke("scan_directory", { path: path });
 
-    if (directoryInformations.value === undefined) {
+    if (data === undefined) {
         return;
     }
 
+    function attachParents(file: FileModel, parent?: FileModel) {
+        file.parent = parent;
+        file.children?.forEach((child) => attachParents(child, file));
+    }
+
+    attachParents(data);
+
+    directoryInformations.value = data;
     directoryInformations.value.folder_open = true;
     isLoading.value = false;
 }
@@ -34,12 +42,9 @@ async function get_directory_informations(path: string) {
         <HeaderWithPickFolders />
 
         <div class="flex pt-32">
-            <div class="w-1/2 pl-16 pt-12">
+            <div class="pl-16 pt-12">
                 <LoaderFilesList v-if="isLoading" />
                 <FilesList :file="directoryInformations!" v-else />
-            </div>
-
-            <div class="w-1/2">
             </div>
         </div>
     </div>

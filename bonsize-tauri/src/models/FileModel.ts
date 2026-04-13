@@ -7,4 +7,5 @@ export interface FileModel {
     depth: number,
 
     folder_open: boolean | undefined,
+    parent?: FileModel,
 }

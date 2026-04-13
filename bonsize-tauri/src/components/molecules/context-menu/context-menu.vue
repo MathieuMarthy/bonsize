@@ -29,6 +29,7 @@ async function handleAction(action: string) {
 
         case "copy-path":
             writeText(currentFile.value.path);
+            notify("Path copied to clipboard", "success");
             break;
 
         case "delete-file":
@@ -41,23 +42,37 @@ async function handleAction(action: string) {
 }
 
 async function deleteFile() {
-    if (currentFile.value === null) {
+    const fileToDelete = currentFile.value;
+    const parent = parentFile.value;
+
+    if (fileToDelete === null) {
         return;
     }
 
-    const type = currentFile.value.is_directory ? "folder" : "file";
-    const confirmed = await confirmModalRef.value?.show(`Are you sure you want to delete this ${type}?`);
+    const type = fileToDelete.is_directory ? "folder" : "file";
+    const confirmed = await confirmModalRef.value?.show(`Are you sure you want to delete ${fileToDelete.path}?`);
     if (!confirmed) {
         return;
     }
 
     try {
-        const fileIsDeleted = await invoke("delete_file", { path: currentFile.value.path });
+        const fileIsDeleted = await invoke("delete_file", { path: fileToDelete.path });
+
         if (fileIsDeleted) {
-            if (parentFile.value !== null) {
-                parentFile.value.children = parentFile.value.children
-                    .filter((child) => child.path !== currentFile.value!.path);
+            const deletedSize = fileToDelete.size;
+
+            if (parent !== null) {
+                parent.children = parent.children
+                    .filter((child) => child.path !== fileToDelete.path);
             }
+
+            // Update upper folders sizes
+            let currentParent = parent;
+            while (currentParent) {
+                currentParent.size -= deletedSize;
+                currentParent = currentParent.parent || null;
+            }
+
             notify(`${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully`, "success");
         } else {
             notify(`Failed to delete ${type}`, "error");

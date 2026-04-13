@@ -1,4 +1,7 @@
-use std::{fs::{remove_dir_all, remove_file}, path::PathBuf};
+use std::{
+    fs::{remove_dir_all, remove_file},
+    path::PathBuf,
+};
 
 use bonsize_core::scanner::{file_model::FileModel, get_directory_size, ScanOptions};
 
@@ -14,13 +17,20 @@ async fn scan_directory(path: String) -> FileModel {
 async fn delete_file(path: String) -> bool {
     let path_buf = PathBuf::from(path);
 
-    if path_buf.is_file() {
-        remove_file(path_buf).is_ok()
+    let function_to_delete = if path_buf.is_dir() {
+        remove_dir_all
     } else {
-        remove_dir_all(path_buf).is_ok()
+        remove_file
+    };
+
+    match function_to_delete(&path_buf) {
+        Ok(_) => true,
+        Err(e) => {
+            eprintln!("Error deleting {}: {}", path_buf.display(), e);
+            false
+        }
     }
 }
-
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
