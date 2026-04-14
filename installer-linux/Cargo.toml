@@ -1,6 +1,6 @@
 [package]
 name = "bonsize-installer"
-version = "1.2.0"
+version = "2.0.0"
 edition = "2024"
 description = "Combined installer for bonsize tree size tool (CLI and GUI)"
 license = "WTFPL"

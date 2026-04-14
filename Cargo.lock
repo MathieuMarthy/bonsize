@@ -368,7 +368,7 @@ dependencies = [
 
 [[package]]
 name = "bonsize-cli"
-version = "1.2.0"
+version = "2.0.0"
 dependencies = [
  "bonsize-core",
  "clap",
@@ -377,7 +377,7 @@ dependencies = [
 
 [[package]]
 name = "bonsize-core"
-version = "1.2.0"
+version = "2.0.0"
 dependencies = [
  "bincode",
  "dirs",
@@ -387,11 +387,11 @@ dependencies = [
 
 [[package]]
 name = "bonsize-installer"
-version = "1.2.0"
+version = "2.0.0"
 
 [[package]]
 name = "bonsize-tauri"
-version = "0.1.0"
+version = "2.0.0"
 dependencies = [
  "bonsize-core",
  "serde",

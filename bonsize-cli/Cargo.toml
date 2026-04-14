@@ -1,6 +1,6 @@
 [package]
 name = "bonsize-cli"
-version = "1.2.0"
+version = "2.0.0"
 edition = "2024"
 description = "A CLI tool to display directory tree sizes"
 license = "WTFPL"
