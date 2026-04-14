@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Bonsize
+Exec=bonsize-ui
+Icon=bonsize
+Type=Application
+Categories=Utility;
+Terminal=false
+Comment=A CLI and GUI tool to display directory tree sizes

@@ -3,5 +3,6 @@ members = [
     "bonsize-core",
     "bonsize-cli",
     "bonsize-tauri/src-tauri",
+    "installer-linux",
 ]
 resolver = "2"
