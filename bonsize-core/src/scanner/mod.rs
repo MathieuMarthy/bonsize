@@ -24,6 +24,7 @@ pub struct ScanOptions {
     pub quiet: bool, // suppress error messages (e.g., permission denied)
 }
 
+
 pub fn get_directory_size(path: &PathBuf, options: &ScanOptions) -> FileModel {
     let mut root_file = FileModel::new(path.to_path_buf(), true, 0);
     scan_directory(&mut root_file, options);

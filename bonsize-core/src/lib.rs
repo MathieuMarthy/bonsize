@@ -1,4 +1,2 @@
-pub mod cli;
-pub mod display;
 pub mod scanner;
 pub mod config;

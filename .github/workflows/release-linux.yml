@@ -1,0 +1,71 @@
+name: Release Linux Installers
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-linux-installers:
+    name: Build Linux CLI & GUI
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev librsvg2-dev patchelf libayatana-appindicator3-dev
+        
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-unknown-linux-gnu
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install cargo-deb
+        run: cargo install cargo-deb
+
+      - name: Build and Package CLI Standalone
+        run: cargo deb -p bonsize-cli
+
+      - name: Build Tauri GUI (Generates standalone UI .deb and .AppImage)
+        working-directory: ./bonsize-tauri
+        run: |
+          bun install
+          bun run tauri build
+
+      - name: Build Everything (Ensures binaries are ready for suite)
+        run: cargo build --workspace --release
+
+      - name: Build Combined Suite
+        run: cargo deb -p bonsize-installer --no-build
+
+      - name: Rename Release Assets
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          mkdir -p release-assets
+          VERSION=${GITHUB_REF#refs/tags/}
+          VERSION=${VERSION#v}
+          
+          # Move CLI .deb
+          mv target/debian/bonsize_*.deb release-assets/bonsize-${VERSION}-amd64-CLI.deb
+        
+          # Move ALL (installer) .deb
+          mv target/debian/bonsize-linux-suite_*.deb release-assets/bonsize-${VERSION}-amd64-ALL.deb
+          
+          # Move GUI (Tauri) .deb & .AppImage
+          mv target/release/bundle/deb/*.deb release-assets/bonsize-${VERSION}-amd64-GUI.deb
+          mv target/release/bundle/appimage/*.AppImage release-assets/bonsize-${VERSION}-amd64-GUI.AppImage
+
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: release-assets/*
