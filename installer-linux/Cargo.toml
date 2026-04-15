@@ -7,7 +7,7 @@ license = "WTFPL"
 publish = false
 
 [package.metadata.deb]
-name = "bonsize-linux-suite"
+name = "bonsize-gui-and-cli"
 maintainer = "Mathieu Marthy <mathieu.marthy@gmail.com>"
 copyright = "2026, Mathieu Marthy"
 section = "utils"
@@ -20,7 +20,7 @@ assets = [
         "755",
     ],
     [
-        "../target/release/bonsize-tauri",
+        "../target/release/bonsize-gui",
         "usr/bin/bonsize-ui",
         "755",
     ],

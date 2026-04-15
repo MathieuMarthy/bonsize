@@ -1,8 +1,15 @@
 [package]
-name = "bonsize-tauri"
+name = "bonsize-gui"
 version = "2.0.0"
-description = "Bonsize Tauri application"
+description = "Bonsize GUI"
 edition = "2021"
+
+[package.metadata.deb]
+name = "bonsize GUI"
+maintainer = "Mathieu Marthy <mathieu.marthy@gmail.com>"
+copyright = "2026, Mathieu Marthy"
+section = "utils"
+priority = "optional"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

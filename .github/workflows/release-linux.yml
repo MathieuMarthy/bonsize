@@ -3,6 +3,9 @@ name: Release Linux Installers
 on:
   release:
     types: [published]
+  push:
+    branches:
+      - main
 
 jobs:
   build-linux-installers:
@@ -24,27 +27,39 @@ jobs:
         with:
           targets: x86_64-unknown-linux-gnu
 
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: "release"
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
 
-      - name: Install cargo-deb
-        run: cargo install cargo-deb
+      - name: Build CLI Standalone
+        run: cargo build --release -p bonsize-cli
 
-      - name: Build and Package CLI Standalone
-        run: cargo deb -p bonsize-cli
-
-      - name: Build Tauri GUI (Generates standalone UI .deb and .AppImage)
+      - name: Build Tauri GUI
         working-directory: ./bonsize-tauri
         run: |
           bun install
-          bun run tauri build
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            bun run tauri build
+          else
+            bun run tauri build --no-bundle
+          fi
 
-      - name: Build Everything (Ensures binaries are ready for suite)
-        run: cargo build --workspace --release
+      - name: Install cargo-deb
+        if: startsWith(github.ref, 'refs/tags/')
+        run: cargo install cargo-deb
+
+      - name: Package CLI Standalone
+        if: startsWith(github.ref, 'refs/tags/')
+        run: cargo deb -p bonsize-cli --no-build
 
       - name: Build Combined Suite
+        if: startsWith(github.ref, 'refs/tags/')
         run: cargo deb -p bonsize-installer --no-build
 
       - name: Rename Release Assets
@@ -56,9 +71,12 @@ jobs:
           
           # Move CLI .deb
           mv target/debian/bonsize_*.deb release-assets/bonsize-${VERSION}-amd64-CLI.deb
+
+          # Create a standalone universal tar.gz for the CLI
+          tar -czvf release-assets/bonsize-${VERSION}-amd64-linux.tar.gz -C target/release bonsize
         
           # Move ALL (installer) .deb
-          mv target/debian/bonsize-linux-suite_*.deb release-assets/bonsize-${VERSION}-amd64-ALL.deb
+          mv target/debian/bonsize-gui-and-cli_*.deb release-assets/bonsize-${VERSION}-amd64-ALL.deb
           
           # Move GUI (Tauri) .deb & .AppImage
           mv target/release/bundle/deb/*.deb release-assets/bonsize-${VERSION}-amd64-GUI.deb

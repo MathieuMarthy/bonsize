@@ -386,11 +386,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "bonsize-installer"
-version = "2.0.0"
-
-[[package]]
-name = "bonsize-tauri"
+name = "bonsize-gui"
 version = "2.0.0"
 dependencies = [
  "bonsize-core",
@@ -402,6 +398,10 @@ dependencies = [
  "tauri-plugin-dialog",
  "tauri-plugin-opener",
 ]
+
+[[package]]
+name = "bonsize-installer"
+version = "2.0.0"
 
 [[package]]
 name = "brotli"
