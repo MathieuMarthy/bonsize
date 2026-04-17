@@ -24,11 +24,11 @@ function onContextMenu(event: MouseEvent) {
 </script>
 
 <template>
-    <p class="text-text text-xl cursor-pointer" :style="{ paddingLeft: `${depth * 20}px` }" @click="toggleFileOpen"
-        @contextmenu.prevent.stop="onContextMenu">
-        <span class="select-none">{{ file.is_directory ? (file.folder_open ? '📂' : '📁') : '📄' }} - {{
-            formatFileSize(file.size) }} -
-        </span>{{ file.path.replace(parentPath, "") }}
+    <p class="text-text text-xl cursor-pointer select-none" :style="{ paddingLeft: `${depth * 20}px` }"
+        @click="toggleFileOpen" @contextmenu.prevent.stop="onContextMenu">
+        {{ file.is_directory ? (file.folder_open ? '📂' : '📁') : '📄' }} -
+        {{ formatFileSize(file.size) }} -
+        {{ file.path.replace(parentPath, "") }}
     </p>
 
     <template v-if="file.folder_open">

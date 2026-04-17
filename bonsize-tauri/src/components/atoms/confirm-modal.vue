@@ -32,7 +32,7 @@ defineExpose({ show });
 
 <template>
     <div v-if="isVisible" class="fixed inset-0 z-200 flex items-center justify-center bg-black bg-opacity-50">
-        <div class="bg-background border border-background-lighter shadow-xl rounded-lg p-6 max-w-sm w-full text-text">
+        <div class="bg-background border border-background-lighter shadow-xl rounded-lg p-6 max-w-xl w-full text-text">
             <p class="text-lg mb-6">{{ message }}</p>
             <div class="flex justify-end gap-4">
                 <button @click="cancel" class="px-4 py-2 rounded bg-background-lighter hover:bg-background-lighter-hover
