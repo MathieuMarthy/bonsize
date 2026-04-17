@@ -8,6 +8,7 @@ const props = defineProps({
     file: { type: Object as PropType<FileModel>, required: true },
     parentPath: { type: String, default: "" },
     parentFile: { type: Object as PropType<FileModel | null>, default: null },
+    depth: { type: Number, default: 0 },
 });
 
 const { openContextMenu } = useContextMenu();
@@ -23,7 +24,7 @@ function onContextMenu(event: MouseEvent) {
 </script>
 
 <template>
-    <p class="text-text text-xl cursor-pointer" :style="{ paddingLeft: `${file.depth * 20}px` }" @click="toggleFileOpen"
+    <p class="text-text text-xl cursor-pointer" :style="{ paddingLeft: `${depth * 20}px` }" @click="toggleFileOpen"
         @contextmenu.prevent.stop="onContextMenu">
         <span class="select-none">{{ file.is_directory ? (file.folder_open ? '📂' : '📁') : '📄' }} - {{
             formatFileSize(file.size) }} -
@@ -32,6 +33,6 @@ function onContextMenu(event: MouseEvent) {
 
     <template v-if="file.folder_open">
         <FilesList v-for="child in file.children" :key="child.path" :file="child" :parent-path="file.path + '/'"
-            :parent-file="file" />
+            :parent-file="file" :depth="depth + 1" />
     </template>
 </template>

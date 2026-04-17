@@ -20,12 +20,12 @@ export function useNotification() {
     }
 
     function removeNotification(id: number) {
-        notifications.value = notifications.value.filter(n => n.id !== id);
+        notifications.value = notifications.value.filter((n) => n.id !== id);
     }
 
     return {
         notifications,
         notify,
-        removeNotification
+        removeNotification,
     };
 }

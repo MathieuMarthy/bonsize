@@ -5,6 +5,7 @@ import { invoke } from "@tauri-apps/api/core";
 import HeaderWithPickFolders from "../molecules/header-with-pick-folders.vue";
 import LoaderFilesList from "../molecules/files-list/loader-files-list.vue";
 import FilesList from "../molecules/files-list/files-list.vue";
+import { attachParents } from "../../utils/updateFileTree";
 
 const isLoading = ref(true);
 const directoryInformations: Ref<FileModel | undefined> = ref(undefined);
@@ -24,11 +25,6 @@ async function get_directory_informations(path: string) {
         return;
     }
 
-    function attachParents(file: FileModel, parent?: FileModel) {
-        file.parent = parent;
-        file.children?.forEach((child) => attachParents(child, file));
-    }
-
     attachParents(data);
 
     directoryInformations.value = data;
@@ -42,7 +38,7 @@ async function get_directory_informations(path: string) {
         <HeaderWithPickFolders />
 
         <div class="flex pt-32">
-            <div class="pl-16 pt-12">
+            <div class="pl-16 pt-12 w-full">
                 <LoaderFilesList v-if="isLoading" />
                 <FilesList :file="directoryInformations!" v-else />
             </div>
