@@ -12,3 +12,14 @@ export function updateParentSizes(parent: FileModel, fileSize: number) {
         currentParent = currentParent.parent || null;
     }
 }
+
+export function flattenFiles(file: FileModel, result: FileModel[] = []) {
+    result.push(file);
+
+    if (file.children) {
+        for (const child of file.children) {
+            flattenFiles(child, result);
+        }
+    }
+    return result;
+}

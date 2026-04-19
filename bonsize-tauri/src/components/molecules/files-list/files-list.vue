@@ -1,38 +1,13 @@
 <script setup lang="ts">
 import { PropType } from "vue";
-import { type FileModel } from "../../../models/FileModel";
-import { formatFileSize } from "../../../utils/format";
-import { useContextMenu } from "../context-menu/useContextMenu";
+import { FileModel } from "../../../models/FileModel";
+import FileRepresentation from "../../atoms/file-representation.vue";
 
-const props = defineProps({
-    file: { type: Object as PropType<FileModel>, required: true },
-    parentPath: { type: String, default: "" },
-    parentFile: { type: Object as PropType<FileModel | null>, default: null },
-    depth: { type: Number, default: 0 },
+defineProps({
+    files: { type: Array as PropType<FileModel[]>, required: true },
 });
-
-const { openContextMenu } = useContextMenu();
-
-function toggleFileOpen() {
-    // eslint-disable-next-line vue/no-mutating-props
-    props.file.folder_open = !props.file.folder_open;
-}
-
-function onContextMenu(event: MouseEvent) {
-    openContextMenu(event, props.file, props.parentFile);
-}
 </script>
 
 <template>
-    <p class="text-text text-xl cursor-pointer select-none" :style="{ paddingLeft: `${depth * 20}px` }"
-        @click="toggleFileOpen" @contextmenu.prevent.stop="onContextMenu">
-        {{ file.is_directory ? (file.folder_open ? '📂' : '📁') : '📄' }} -
-        {{ formatFileSize(file.size) }} -
-        {{ file.path.replace(parentPath, "") }}
-    </p>
-
-    <template v-if="file.folder_open">
-        <FilesList v-for="child in file.children" :key="child.path" :file="child" :parent-path="file.path + '/'"
-            :parent-file="file" :depth="depth + 1" />
-    </template>
+    <FileRepresentation v-for="file in files" :key="file.path" :file="file" />
 </template>

@@ -9,7 +9,7 @@ import ConfirmModal from "../../atoms/confirm-modal.vue";
 import { attachParents, updateParentSizes } from "../../../utils/updateFileTree";
 import { FileModel } from "../../../models/FileModel";
 
-const { showContextMenu, menuX, menuY, currentFile, parentFile, closeContextMenu } = useContextMenu();
+const { showContextMenu, menuX, menuY, currentFile, closeContextMenu } = useContextMenu();
 const { notify } = useNotification();
 const confirmModalRef = ref<InstanceType<typeof ConfirmModal> | null>(null);
 
@@ -50,9 +50,9 @@ async function handleAction(action: string) {
 
 async function deleteFile() {
     const fileToDelete = currentFile.value;
-    const parent = parentFile.value;
+    const parent = fileToDelete?.parent;
 
-    if (fileToDelete === null) {
+    if (fileToDelete === null || parent === undefined) {
         return;
     }
 
@@ -85,9 +85,9 @@ async function deleteFile() {
 
 async function rescanFile() {
     const file = currentFile.value;
-    const parent = parentFile.value;
+    const parent = file?.parent;
 
-    if (file === null) {
+    if (file === null || parent === undefined) {
         return;
     }
 
