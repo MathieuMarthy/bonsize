@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, Ref } from "vue";
+import { ref, onMounted, onUnmounted, Ref } from "vue";
 import { FileModel } from "../../models/FileModel";
 import { invoke } from "@tauri-apps/api/core";
 import HeaderWithPickFolders from "../molecules/header-with-pick-folders.vue";
@@ -62,12 +62,24 @@ function changeSizeType(newValue: string) {
     get_directory_informations();
 }
 
-onMounted(() => {
+function handleHashChange() {
     const hash = window.location.hash;
     const urlParams = new URLSearchParams(hash.split("?")[1] || "");
-    pathToScan.value = urlParams.get("path") || "";
+    const newPath = urlParams.get("path") || "";
 
-    get_directory_informations();
+    if (newPath !== pathToScan.value || pathToScan.value === "") {
+        pathToScan.value = newPath;
+        get_directory_informations();
+    }
+}
+
+onMounted(() => {
+    handleHashChange();
+    window.addEventListener("hashchange", handleHashChange);
+});
+
+onUnmounted(() => {
+    window.removeEventListener("hashchange", handleHashChange);
 });
 
 async function get_directory_informations() {
