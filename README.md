@@ -4,10 +4,21 @@ A CLI tool to display directory tree sizes.
 
 ## Description
 
-`bonsize` allows you to quickly analyze and display the size of directories and files in a tree structure, making it easy to identify which files and folders are taking up the most disk space.
+`bonsize` allows you to quickly analyze and display the size of directories and files in a tree structure, making it easy to identify which files and folders are taking up the most disk space. It comes with both a fast Command-Line Interface (CLI) and an interactive Graphical User Interface (GUI).
 
+## Graphical User Interface (GUI)
 
-## Usage
+The `bonsize-gui` application provides an interactive, visual way to explore your disk space usage. 
+
+![interface with a directory tree, folders, files, and their respective sizes visually represented](assets/docs/gui_screenshot.png)
+
+You can launch the GUI directly from your desktop application launcher or by running the following command in your terminal:
+
+```bash
+bonsize-gui
+```
+
+## CLI Usage
 
 ```bash
 bonsize [OPTIONS] [PATH]
@@ -56,26 +67,43 @@ $ bonsize -d 3 -c
 
 ## Installation
 
-### Windows
+All releases are available on the [releases section](https://github.com/MathieuMarthy/bonsize/releases)
 
-Download the Windows installer (`.exe`) from the [GitHub releases](https://github.com/MathieuMarthy/bonsize/releases).
+### Install only the CLI
+#### For Linux
 
-### Debian/Ubuntu
+##### Debian/Ubuntu
 
-Download the `.deb` package from the [GitHub releases](https://github.com/MathieuMarthy/bonsize/releases) and install it:
-
-```bash
-sudo dpkg -i bonsize_*.deb
-```
-
-### From source
-
-If you have Rust installed, you can compile from source:
+Download the `.deb` package and install it:
 
 ```bash
-cargo install --path .
+sudo dpkg -i bonsize_*-CLI.deb
 ```
 
+##### Universal linux
+
+For the moment, on other distros you can use the tar.gz
+
+
+#### For windows
+
+*soon*
+
+### Install only the GUI
+
+###### Debian/Ubuntu
+Download the `.deb` package and install it:
+
+```bash
+sudo dpkg -i bonsize_*-GUI.deb
+```
+
+##### AppImage
+
+```bash
+chmod +x bonsize_*-GUI.AppImage
+./bonsize_*-GUI.AppImage
+```
 
 ## License
 
