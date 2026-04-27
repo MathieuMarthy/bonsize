@@ -1,37 +1,37 @@
-pub mod file_model;
 pub mod cache;
+pub mod file_model;
+pub mod file_size;
 
 use crate::scanner::file_model::FileModel;
-use std::fs;
-use std::fs::Metadata;
-use std::path::PathBuf;
+use crate::scanner::file_size::{
+    ScanOptions, SizeType, get_file_size_logical, get_file_size_physical,
+};
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use rayon::slice::ParallelSliceMut;
-use crate::config::BLOCK_SIZE;
-
-#[cfg(unix)]
-fn get_file_size(metadata: &Metadata) -> u64 {
-    use std::os::unix::fs::MetadataExt;
-    metadata.blocks() * BLOCK_SIZE
-}
-
-#[cfg(not(unix))]
-fn get_file_size(metadata: &Metadata) -> u64 {
-    metadata.len()
-}
-
-pub struct ScanOptions {
-    pub quiet: bool, // suppress error messages (e.g., permission denied)
-}
-
+use std::fs::{self, Metadata};
+use std::path::PathBuf;
 
 pub fn get_directory_size(path: &PathBuf, options: &ScanOptions) -> FileModel {
     let mut root_file = FileModel::new(path.to_path_buf(), true, 0);
-    scan_directory(&mut root_file, options);
+
+    let get_file_size = match options.size_type {
+        SizeType::Logical => get_file_size_logical,
+        SizeType::Physical => get_file_size_physical,
+    };
+
+    if let Ok(metadata) = fs::metadata(path) {
+        root_file.size = get_file_size(&metadata);
+    }
+
+    scan_directory(&mut root_file, options, get_file_size);
     root_file
 }
 
-fn scan_directory(parent_dir: &mut FileModel, options: &ScanOptions) {
+fn scan_directory(
+    parent_dir: &mut FileModel,
+    options: &ScanOptions,
+    get_file_size: fn(&Metadata) -> u64,
+) {
     let entries: Vec<_> = match fs::read_dir(&parent_dir.path) {
         Ok(paths) => paths
             .filter_map(|entry| match entry {
@@ -78,21 +78,21 @@ fn scan_directory(parent_dir: &mut FileModel, options: &ScanOptions) {
             let depth = parent_dir.depth + 1;
             let mut file_model = FileModel::new(file.path(), file_type.is_dir(), depth);
 
-            if file_type.is_file() {
-                file_model.size = file
-                    .metadata()
-                    .inspect_err(|_| {
-                        if !options.quiet {
-                            eprintln!(
-                                "Error: Unable to determine the size of file '{:?}'",
-                                file_model.path
-                            );
-                        }
-                    })
-                    .map(|m| get_file_size(&m))
-                    .unwrap_or(0);
-            } else {
-                scan_directory(&mut file_model, options);
+            file_model.size = file
+                .metadata()
+                .inspect_err(|_| {
+                    if !options.quiet {
+                        eprintln!(
+                            "Error: Unable to determine the size of '{:?}'",
+                            file_model.path
+                        );
+                    }
+                })
+                .map(|m| get_file_size(&m))
+                .unwrap_or(0);
+
+            if !file_type.is_file() {
+                scan_directory(&mut file_model, options, get_file_size);
             }
 
             Some(file_model)

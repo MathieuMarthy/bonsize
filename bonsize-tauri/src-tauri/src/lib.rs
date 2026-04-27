@@ -3,12 +3,12 @@ use std::{
     path::PathBuf,
 };
 
-use bonsize_core::scanner::{file_model::FileModel, get_directory_size, ScanOptions};
+use bonsize_core::scanner::{file_model::FileModel, file_size::{ScanOptions, SizeType}, get_directory_size};
 
 #[tauri::command]
 async fn scan_directory(path: String) -> FileModel {
     let path_buf = PathBuf::from(path);
-    let options = ScanOptions { quiet: true };
+    let options = ScanOptions { quiet: true, size_type: SizeType::Physical };
 
     get_directory_size(&path_buf, &options)
 }
