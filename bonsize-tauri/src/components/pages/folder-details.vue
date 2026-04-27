@@ -8,9 +8,13 @@ import FilesList from "../molecules/files-list/files-list.vue";
 import { attachParents, flattenFiles } from "../../utils/updateFileTree";
 import { DELAY_BEFORE_SEARCH } from "../../const";
 import SnipperLoader from "../atoms/snipper-loader.vue";
+import ToggleButtonGroup from "../atoms/toggle-button-group.vue";
+import { SizeType } from "../../models/SizeType";
 
 const isLoading = ref(true);
 const rootFile: Ref<FileModel | undefined> = ref(undefined);
+const sizeType = ref(SizeType.Physical);
+const pathToScan = ref("");
 
 const searchResults: Ref<FileModel[]> = ref([]);
 const flatFiles: Ref<FileModel[]> = ref([]);
@@ -48,16 +52,31 @@ function onSearchInput(event: Event) {
     }, DELAY_BEFORE_SEARCH);
 }
 
+function changeSizeType(newValue: string) {
+    if (!Object.values(SizeType).includes(newValue as SizeType)) {
+        return;
+    }
+
+    sizeType.value = newValue as SizeType;
+
+    get_directory_informations();
+}
+
 onMounted(() => {
     const hash = window.location.hash;
     const urlParams = new URLSearchParams(hash.split("?")[1] || "");
-    const folderPath = urlParams.get("path") || "";
+    pathToScan.value = urlParams.get("path") || "";
 
-    get_directory_informations(folderPath);
+    get_directory_informations();
 });
 
-async function get_directory_informations(path: string) {
-    const data: FileModel | undefined = await invoke("scan_directory", { path: path });
+async function get_directory_informations() {
+    isLoading.value = true;
+    const data: FileModel | undefined =
+        await invoke(
+            "scan_directory",
+            { path: pathToScan.value, usePhysicalSize: sizeType.value === SizeType.Physical },
+        );
 
     if (data === undefined) {
         return;
@@ -80,6 +99,12 @@ async function get_directory_informations(path: string) {
 
         <div class="flex pt-24">
             <div class="flex flex-col gap-4 pl-16 pt-12 w-full">
+                <div class="flex gap-2 items-center">
+                    <p class="text-text">Select size type:</p>
+                    <ToggleButtonGroup :values="[SizeType.Physical.toString(), SizeType.Logical.toString()]"
+                        :selectedIndex="0" @change-value="changeSizeType" />
+                </div>
+
                 <div class="w-96 flex items-center gap-4">
                     <input class="py-2 px-5 w-11/12 bg-background-lighter text-text rounded-3xl"
                         placeholder="Search files" @input="onSearchInput" />
