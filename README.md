@@ -37,6 +37,7 @@ bonsize [OPTIONS] [PATH]
 - `--csv [<CSV>]` - Export results to CSV format
 - `-c, --cache` - Use caching for improved performance
 - `-q, --quiet` - Suppress non-essential output
+- `-l, --logical-size` - Show logical size instead of physical size
 - `-h, --help` - Print help information
 - `-V, --version` - Print version information
 

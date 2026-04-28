@@ -22,6 +22,33 @@ const searchQuery = ref("");
 const searchIsLoading = ref(false);
 let searchTimeout: ReturnType<typeof setTimeout> | null = null;
 
+function search() {
+    const query = searchQuery.value.toLowerCase();
+
+    if (query === "") {
+        searchResults.value = [];
+        searchIsLoading.value = false;
+        return;
+    }
+
+    const results = [];
+
+    for (const f of flatFiles.value) {
+        const pathSlashIdx = f.path.lastIndexOf("/");
+        const filename = pathSlashIdx !== -1 ? f.path.slice(pathSlashIdx + 1) : f.path;
+
+        if (filename.toLowerCase().includes(query)) {
+            results.push(f);
+            if (results.length >= 100) {
+                break;
+            }
+        }
+    }
+
+    searchResults.value = results;
+    searchIsLoading.value = false;
+}
+
 function onSearchInput(event: Event) {
     const target = event.target as HTMLInputElement;
     searchQuery.value = target.value;
@@ -31,25 +58,7 @@ function onSearchInput(event: Event) {
         clearTimeout(searchTimeout);
     }
 
-    searchTimeout = setTimeout(() => {
-        const query = searchQuery.value.toLowerCase();
-        const results = [];
-
-        for (const f of flatFiles.value) {
-            const pathSlashIdx = f.path.lastIndexOf("/");
-            const filename = pathSlashIdx !== -1 ? f.path.slice(pathSlashIdx + 1) : f.path;
-
-            if (filename.toLowerCase().includes(query)) {
-                results.push(f);
-                if (results.length >= 100) {
-                    break;
-                }
-            }
-        }
-
-        searchResults.value = results;
-        searchIsLoading.value = false;
-    }, DELAY_BEFORE_SEARCH);
+    searchTimeout = setTimeout(search, DELAY_BEFORE_SEARCH);
 }
 
 function changeSizeType(newValue: string) {
@@ -100,6 +109,13 @@ async function get_directory_informations() {
     rootFile.value.folder_open = true;
 
     flatFiles.value = flattenFiles(rootFile.value);
+
+    if (searchQuery.value !== "") {
+        search();
+    } else {
+        searchResults.value = [];
+        searchIsLoading.value = false;
+    }
 
     isLoading.value = false;
 }
