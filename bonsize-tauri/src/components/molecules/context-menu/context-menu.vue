@@ -6,14 +6,17 @@ import { useContextMenu } from "./useContextMenu";
 import { invoke } from "@tauri-apps/api/core";
 import { useNotification } from "../../../utils/useNotification";
 import ConfirmModal from "../../atoms/confirm-modal.vue";
+import { attachParents, updateParentSizes } from "../../../utils/updateFileTree";
+import { FileModel } from "../../../models/FileModel";
 
-const { showContextMenu, menuX, menuY, currentFile, parentFile, closeContextMenu } = useContextMenu();
+const { showContextMenu, menuX, menuY, currentFile, closeContextMenu } = useContextMenu();
 const { notify } = useNotification();
 const confirmModalRef = ref<InstanceType<typeof ConfirmModal> | null>(null);
 
 const actions = computed(() => [
     ["Open in file explorer", "open-folder"],
     ["Copy Path", "copy-path"],
+    ["Refresh branch", "refresh-branch"],
     [`Delete ${currentFile.value?.is_directory ? "folder" : "file"}`, "delete-file"],
 ]);
 
@@ -32,6 +35,10 @@ async function handleAction(action: string) {
             notify("Path copied to clipboard", "success");
             break;
 
+        case "refresh-branch":
+            rescanFile();
+            break;
+
         case "delete-file":
             await deleteFile();
             break;
@@ -43,9 +50,9 @@ async function handleAction(action: string) {
 
 async function deleteFile() {
     const fileToDelete = currentFile.value;
-    const parent = parentFile.value;
+    const parent = fileToDelete?.parent;
 
-    if (fileToDelete === null) {
+    if (fileToDelete === null || parent === undefined) {
         return;
     }
 
@@ -64,13 +71,7 @@ async function deleteFile() {
             if (parent !== null) {
                 parent.children = parent.children
                     .filter((child) => child.path !== fileToDelete.path);
-            }
-
-            // Update upper folders sizes
-            let currentParent = parent;
-            while (currentParent) {
-                currentParent.size -= deletedSize;
-                currentParent = currentParent.parent || null;
+                updateParentSizes(parent, -deletedSize);
             }
 
             notify(`${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully`, "success");
@@ -79,6 +80,38 @@ async function deleteFile() {
         }
     } catch {
         notify(`Error deleting ${type}`, "error");
+    }
+}
+
+async function rescanFile() {
+    const file = currentFile.value;
+    const parent = file?.parent;
+
+    if (file === null || parent === undefined) {
+        return;
+    }
+
+    const updatedFile: FileModel | undefined = await invoke("scan_directory", { path: file.path });
+
+    if (updatedFile === undefined) {
+        return;
+    }
+
+    const sizeDiff = updatedFile.size - file.size;
+    const oldFolderOpen = file.folder_open;
+
+    Object.assign(file, updatedFile);
+    file.folder_open = oldFolderOpen;
+
+    attachParents(file, parent ?? undefined);
+
+    if (parent !== null) {
+        // Sort directories before files, then sort by descending size.
+        parent.children.sort((a, b) =>
+            ((b.is_directory ? 1 : 0) - (a.is_directory ? 1 : 0)) ||
+            (b.size - a.size),
+        );
+        updateParentSizes(parent, sizeDiff);
     }
 }
 

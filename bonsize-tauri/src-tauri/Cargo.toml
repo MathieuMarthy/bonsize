@@ -31,3 +31,4 @@ serde_json = "1"
 bonsize-core = { path = "../../bonsize-core" }
 tauri-plugin-dialog = "2"
 tauri-plugin-clipboard-manager = "2"
+tauri-plugin-os = "2"
