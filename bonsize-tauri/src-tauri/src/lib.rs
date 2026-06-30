@@ -45,6 +45,19 @@ async fn delete_file(path: String) -> bool {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    #[cfg(target_os = "linux")]
+    {
+        // Workaround for WebKitGTK / Wayland / NVIDIA protocol errors (Error 71 dispatching to Wayland display)
+        if std::env::var("WEBKIT_DISABLE_DMABUF_RENDERER").is_err() {
+            std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
+        }
+
+        // Force GTK dark theme variant because Bonsize UI is dark by default
+        if std::env::var("GTK_THEME").is_err() {
+            std::env::set_var("GTK_THEME", "Adwaita:dark");
+        }
+    }
+
     tauri::Builder::default()
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_clipboard_manager::init())
