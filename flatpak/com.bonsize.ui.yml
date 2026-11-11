@@ -1,0 +1,25 @@
+id: com.bonsize.ui
+runtime: org.gnome.Platform
+runtime-version: '49'
+sdk: org.gnome.Sdk
+command: bonsize-gui
+finish-args:
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --share=ipc
+  - --device=dri
+  - --filesystem=host
+modules:
+  - name: bonsize-gui
+    buildsystem: simple
+    sources:
+      - type: file
+        path: ../target/release/bonsize-gui
+      - type: file
+        path: com.bonsize.ui.desktop
+      - type: file
+        path: com.bonsize.ui.png
+    build-commands:
+      - install -Dm755 bonsize-gui /app/bin/bonsize-gui
+      - install -Dm644 com.bonsize.ui.desktop /app/share/applications/com.bonsize.ui.desktop
+      - install -Dm644 com.bonsize.ui.png /app/share/icons/hicolor/256x256/apps/com.bonsize.ui.png

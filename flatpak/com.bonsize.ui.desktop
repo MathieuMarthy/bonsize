@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Bonsize
+Comment=Display directory tree sizes
+Exec=bonsize-gui
+Icon=com.bonsize.ui
+Type=Application
+Categories=Utility;
+Terminal=false

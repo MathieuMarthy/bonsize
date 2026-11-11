@@ -50,6 +50,12 @@ jobs:
             bun run tauri build --no-bundle
           fi
 
+      - name: Upload GUI binary (for Flatpak)
+        uses: actions/upload-artifact@v4
+        with:
+          name: bonsize-gui-bin
+          path: target/release/bonsize-gui
+
       - name: Install cargo-deb
         if: startsWith(github.ref, 'refs/tags/')
         run: cargo install cargo-deb
@@ -83,6 +89,46 @@ jobs:
           mv target/release/bundle/appimage/*.AppImage release-assets/bonsize-${VERSION}-amd64-GUI.AppImage
 
       - name: Upload Release Assets
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: release-assets/*
+
+  build-flatpak:
+    name: Build Flatpak GUI
+    needs: build-linux-installers
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-49
+      options: --privileged
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download GUI binary
+        uses: actions/download-artifact@v4
+        with:
+          name: bonsize-gui-bin
+          path: target/release
+
+      - name: Build Flatpak bundle
+        uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: bonsize-gui.flatpak
+          manifest-path: flatpak/com.bonsize.ui.yml
+          cache-key: flatpak-builder-${{ github.sha }}
+
+      - name: Rename Flatpak bundle
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          VERSION=${VERSION#v}
+          mkdir -p release-assets
+          mv bonsize-gui.flatpak release-assets/bonsize-${VERSION}-x86_64-GUI.flatpak
+
+      - name: Upload Flatpak to release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
