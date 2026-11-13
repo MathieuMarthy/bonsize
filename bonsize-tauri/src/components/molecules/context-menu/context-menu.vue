@@ -7,9 +7,12 @@ import { useNotification } from "../../../utils/useNotification";
 import ConfirmModal from "../../atoms/confirm-modal.vue";
 import { attachParents, updateParentSizes } from "../../../utils/updateFileTree";
 import { FileModel } from "../../../models/FileModel";
+import { SizeType } from "../../../models/SizeType";
+import { useSizeType } from "../../../utils/useSizeType";
 
 const { showContextMenu, menuX, menuY, currentFile, closeContextMenu } = useContextMenu();
 const { notify } = useNotification();
+const { sizeType } = useSizeType();
 const confirmModalRef = ref<InstanceType<typeof ConfirmModal> | null>(null);
 
 const actions = computed(() => [
@@ -92,7 +95,10 @@ async function rescanFile() {
         return;
     }
 
-    const updatedFile: FileModel | undefined = await invoke("scan_directory", { path: file.path });
+    const updatedFile: FileModel | undefined = await invoke(
+        "scan_directory",
+        { path: file.path, usePhysicalSize: sizeType.value === SizeType.Physical },
+    );
 
     if (updatedFile === undefined) {
         return;

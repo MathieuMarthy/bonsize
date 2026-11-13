@@ -10,10 +10,11 @@ import { DELAY_BEFORE_SEARCH } from "../../const";
 import SnipperLoader from "../atoms/snipper-loader.vue";
 import ToggleButtonGroup from "../atoms/toggle-button-group.vue";
 import { SizeType } from "../../models/SizeType";
+import { useSizeType } from "../../utils/useSizeType";
 
 const isLoading = ref(true);
 const rootFile: Ref<FileModel | undefined> = ref(undefined);
-const sizeType = ref(SizeType.Physical);
+const { sizeType } = useSizeType();
 const pathToScan = ref("");
 
 const searchResults: Ref<FileModel[]> = ref([]);
@@ -130,7 +131,7 @@ async function get_directory_informations() {
                 <div class="flex gap-2 items-center">
                     <p class="text-text">Select size type:</p>
                     <ToggleButtonGroup :values="[SizeType.Physical.toString(), SizeType.Logical.toString()]"
-                        :selectedIndex="0" @change-value="changeSizeType" />
+                        :initIndex="sizeType === SizeType.Physical ? 0 : 1" @change-value="changeSizeType" />
                 </div>
 
                 <div class="w-96 flex items-center gap-4">
