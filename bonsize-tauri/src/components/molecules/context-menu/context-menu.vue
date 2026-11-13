@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { openPath } from "@tauri-apps/plugin-opener";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useContextMenu } from "./useContextMenu";
@@ -27,7 +26,9 @@ async function handleAction(action: string) {
 
     switch (action) {
         case "open-folder":
-            openPath(currentFile.value.path);
+            // Backend maps host path to sandbox path (Flatpak).
+            invoke("open_path", { path: currentFile.value.path })
+                .catch(() => notify("Failed to open path", "error"));
             break;
 
         case "copy-path":

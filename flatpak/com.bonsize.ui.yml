@@ -9,6 +9,9 @@ finish-args:
   - --share=ipc
   - --device=dri
   - --filesystem=host
+  # Whole host at /run/host/root (Flatpak >= 1.17), needed to scan /usr, /var...
+  # Older Flatpak ignores it: app falls back to a partial view of /.
+  - --filesystem=host-root
 modules:
   - name: bonsize-gui
     buildsystem: simple
