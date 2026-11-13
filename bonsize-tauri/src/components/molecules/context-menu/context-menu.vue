@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { openPath } from "@tauri-apps/plugin-opener";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useContextMenu } from "./useContextMenu";
@@ -8,9 +7,12 @@ import { useNotification } from "../../../utils/useNotification";
 import ConfirmModal from "../../atoms/confirm-modal.vue";
 import { attachParents, updateParentSizes } from "../../../utils/updateFileTree";
 import { FileModel } from "../../../models/FileModel";
+import { SizeType } from "../../../models/SizeType";
+import { useSizeType } from "../../../utils/useSizeType";
 
 const { showContextMenu, menuX, menuY, currentFile, closeContextMenu } = useContextMenu();
 const { notify } = useNotification();
+const { sizeType } = useSizeType();
 const confirmModalRef = ref<InstanceType<typeof ConfirmModal> | null>(null);
 
 const actions = computed(() => [
@@ -27,7 +29,9 @@ async function handleAction(action: string) {
 
     switch (action) {
         case "open-folder":
-            openPath(currentFile.value.path);
+            // Backend maps host path to sandbox path (Flatpak).
+            invoke("open_path", { path: currentFile.value.path })
+                .catch(() => notify("Failed to open path", "error"));
             break;
 
         case "copy-path":
@@ -91,7 +95,10 @@ async function rescanFile() {
         return;
     }
 
-    const updatedFile: FileModel | undefined = await invoke("scan_directory", { path: file.path });
+    const updatedFile: FileModel | undefined = await invoke(
+        "scan_directory",
+        { path: file.path, usePhysicalSize: sizeType.value === SizeType.Physical },
+    );
 
     if (updatedFile === undefined) {
         return;

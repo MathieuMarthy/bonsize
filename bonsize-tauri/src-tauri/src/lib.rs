@@ -1,6 +1,8 @@
+mod sandbox;
+
 use std::{
     fs::{remove_dir_all, remove_file},
-    path::PathBuf,
+    path::{Path, PathBuf},
 };
 
 use bonsize_core::scanner::{
@@ -8,10 +10,12 @@ use bonsize_core::scanner::{
     file_size::{ScanOptions, SizeType},
     get_directory_size,
 };
+use sandbox::Mode;
+use tauri_plugin_opener::OpenerExt;
 
 #[tauri::command]
 async fn scan_directory(path: String, use_physical_size: bool) -> FileModel {
-    let path_buf = PathBuf::from(path);
+    let host_path = PathBuf::from(path);
     let options = ScanOptions {
         quiet: true,
         size_type: if use_physical_size {
@@ -21,12 +25,42 @@ async fn scan_directory(path: String, use_physical_size: bool) -> FileModel {
         },
     };
 
-    get_directory_size(&path_buf, &options)
+    let mut model = if sandbox::mode() == Mode::Partial && host_path == Path::new("/") {
+        scan_partial_root(&options)
+    } else {
+        get_directory_size(&sandbox::to_sandbox(&host_path), &options)
+    };
+
+    sandbox::tree_to_host(&mut model);
+    model
+}
+
+/// Flatpak without `host-root`: `/` is the sandbox, so build a fake `/`
+/// from the host dirs we can reach.
+fn scan_partial_root(options: &ScanOptions) -> FileModel {
+    let mut root = FileModel::new(PathBuf::from("/"), true, 0);
+
+    for entry in sandbox::partial_root_entries() {
+        let mut child = get_directory_size(&entry, options);
+        shift_depth(&mut child, 1);
+        root.size += child.size;
+        root.children.push(child);
+    }
+
+    root.children.sort_by_key(|c| std::cmp::Reverse(c.size));
+    root
+}
+
+fn shift_depth(model: &mut FileModel, offset: usize) {
+    model.depth += offset;
+    for child in &mut model.children {
+        shift_depth(child, offset);
+    }
 }
 
 #[tauri::command]
 async fn delete_file(path: String) -> bool {
-    let path_buf = PathBuf::from(path);
+    let path_buf = sandbox::to_sandbox(Path::new(&path));
 
     let function_to_delete = if path_buf.is_dir() {
         remove_dir_all
@@ -41,6 +75,15 @@ async fn delete_file(path: String) -> bool {
             false
         }
     }
+}
+
+#[tauri::command]
+async fn open_path(app: tauri::AppHandle, path: String) -> Result<(), String> {
+    let path_buf = sandbox::to_sandbox(Path::new(&path));
+
+    app.opener()
+        .open_path(path_buf.to_string_lossy(), None::<&str>)
+        .map_err(|e| e.to_string())
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -63,7 +106,7 @@ pub fn run() {
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![scan_directory, delete_file])
+        .invoke_handler(tauri::generate_handler![scan_directory, delete_file, open_path])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
